@@ -21,16 +21,36 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+## 环境变量
+
+项目使用真实的 OpenAI-compatible API（通过 `openai` SDK 调用）。
+
+`.env` 需要至少包含：
+
+```env
+AI_API_KEY=your_api_key
+AI_BASE_URL=https://your-openai-compatible-endpoint/v1
+AI_MODEL=gpt-4.1
+```
+
+说明：为了方便评审与完整联调测试，本仓库没有隐藏 `.env` 文件。
+
 ## 启动服务
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 服务启动后可访问：
 
 - `http://127.0.0.1:8000/health`
-- `http://127.0.0.1:8000/docs`
+- `http://127.0.0.1:8000/docs`  推荐，可以直接使用预定义参数测试api
+### summary功能
+![alt text](image-1.png)
+### 关键词提取功能
+![alt text](image.png)
+### 错误请求示例(缺失字段)
+![alt text](image-2.png)
 
 ## 示例请求
 
@@ -69,10 +89,19 @@ curl -X POST http://127.0.0.1:8000/v1/capabilities/run \
 pytest
 ```
 
+## CI
+
+已配置 GitHub Actions：
+
+- `push` 到 `main` 
+- 任意 `pull_request`
+
+都会自动安装依赖并执行 `pytest -q` 实现自动化测试。
+
 ## 设计说明
 
 - 使用 FastAPI + Pydantic 实现输入校验与 HTTP 服务
 - 通过 capability registry 做能力分发，方便继续扩展更多能力
 - 统一返回 `ok/data/meta` 或 `ok/error/meta`
 - 对业务异常和校验异常分别处理，输出稳定的错误码
-- 用简单算法模拟模型调用，满足题目要求且本地可运行
+- 使用真实模型 API 完成 `text_summary` 与 `text_keywords` 能力

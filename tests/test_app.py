@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.services import capabilities as capabilities_service
 
 client = TestClient(app)
 
@@ -12,7 +13,13 @@ def test_health_check() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_text_summary_success() -> None:
+def test_text_summary_success(monkeypatch) -> None:
+    monkeypatch.setattr(
+        capabilities_service,
+        "_call_model",
+        lambda *args, **kwargs: "FastAPI is productive and provides validation with API docs.",
+    )
+
     response = client.post(
         "/v1/capabilities/run",
         json={
@@ -33,7 +40,13 @@ def test_text_summary_success() -> None:
     assert len(payload["data"]["result"]) <= 60
 
 
-def test_text_keywords_success() -> None:
+def test_text_keywords_success(monkeypatch) -> None:
+    monkeypatch.setattr(
+        capabilities_service,
+        "_call_model",
+        lambda *args, **kwargs: '["apis", "service", "delivery"]',
+    )
+
     response = client.post(
         "/v1/capabilities/run",
         json={

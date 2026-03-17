@@ -4,7 +4,8 @@ import logging
 from time import perf_counter
 from uuid import uuid4
 
-from fastapi import FastAPI, Request
+from dotenv import load_dotenv
+from fastapi import Body, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -17,6 +18,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
 logger = logging.getLogger("ai-capability-service")
+
+load_dotenv()
 
 app = FastAPI(
     title="AI Capability Service",
@@ -77,7 +80,38 @@ async def health_check() -> dict[str, str]:
 
 
 @app.post("/v1/capabilities/run", response_model=SuccessResponse)
-async def run_capability(request_body: CapabilityRequest, request: Request) -> SuccessResponse:
+async def run_capability(
+    request: Request,
+    request_body: CapabilityRequest = Body(
+        ...,
+        openapi_examples={
+            "text_summary": {
+                "summary": "Text Summary Example",
+                "description": "Summarize a paragraph with max output length.",
+                "value": {
+                    "capability": "text_summary",
+                    "input": {
+                        "text": "FastAPI is a modern Python web framework. It is designed for high productivity and reliable APIs. This assignment only needs a minimal backend service.",
+                        "max_length": 80,
+                    },
+                    "request_id": "demo-summary-001",
+                },
+            },
+            "text_keywords": {
+                "summary": "Keyword Extraction Example",
+                "description": "Extract top-k keywords from input text.",
+                "value": {
+                    "capability": "text_keywords",
+                    "input": {
+                        "text": "FastAPI makes building APIs simple. Simple APIs improve delivery speed and service quality.",
+                        "top_k": 3,
+                    },
+                    "request_id": "demo-keywords-001",
+                },
+            },
+        },
+    ),
+) -> SuccessResponse:
     started_at = perf_counter()
     request.state.started_at = started_at
 
