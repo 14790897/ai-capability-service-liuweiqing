@@ -1,5 +1,7 @@
 # AI Capability Service
 
+[![CI](https://github.com/14790897/ai-capability-service-liuweiqing/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/14790897/ai-capability-service-liuweiqing/actions/workflows/ci.yml)
+
 一个最小但可直接运行的统一模型能力调用后端服务，按题目要求实现：
 
 - `POST /v1/capabilities/run`
@@ -96,8 +98,8 @@ pytest
 - `push` 到 `main` 
 - 任意 `pull_request`
 
-都会自动安装依赖并执行 `pytest -q` 实现自动化测试。
-
+都会自动安装依赖并执行 `python -m pytest -q` 实现自动化测试。
+注意：`pytest -q`可能会使用全局Python而不是虚拟环境中的 
 ## 设计说明
 
 - 使用 FastAPI + Pydantic 实现输入校验与 HTTP 服务
